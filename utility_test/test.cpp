@@ -187,6 +187,10 @@ BOOST_AUTO_TEST_CASE(save_restore) {
     BOOST_TEST(i == 100);
   }
   BOOST_TEST(checki = i);
+
+  auto s1 = SaveRestore(perm);
+  auto s2 = SaveRestore(perm);
+  static_assert(noexcept(swap(s1, s2)));
 }
 
 namespace std {
@@ -369,6 +373,7 @@ BOOST_AUTO_TEST_CASE(exception_handler_test) {
   std::for_each(std::execution::par_unseq, i2.begin(), i2.end(),
                 h2.Wrap([&](size_t i) { throw std::exception{}; }));
   h1.swap(h2);
+  static_assert(noexcept(swap(h1, h2)));
   BOOST_TEST(h1.NSavedExceptions() == 20);
   BOOST_TEST(h1.NCapturedExceptions() == 50);
   BOOST_TEST(h2.NSavedExceptions() == 10);
@@ -489,6 +494,7 @@ BOOST_AUTO_TEST_CASE(raii_test) {
   auto r1 = RAII{Restore{i, checki}};
   auto r2 = RAII{Restore{i, checki}};
   r1.swap(r2);
+  static_assert(noexcept(swap(r1, r2)));
 
   {
     i = 100;

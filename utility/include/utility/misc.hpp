@@ -208,8 +208,9 @@ public:
 
   void swap(SaveRestore &other) noexcept {
     static_assert(std::is_nothrow_swappable_v<T>);
-    std::swap(restoreTo, other.restoreTo);
-    std::swap(originalValue, other.originalValue);
+    using std::swap;
+    swap(restoreTo, other.restoreTo);
+    swap(originalValue, other.originalValue);
   }
 
   ~SaveRestore() noexcept {
@@ -218,6 +219,11 @@ public:
     *restoreTo = std::move(originalValue.value());
   }
 };
+
+template <typename T>
+void swap(SaveRestore<T> &left, SaveRestore<T> &right) noexcept {
+  left.swap(right);
+}
 
 struct CallAlways final {};
 struct CallOnException final {};
@@ -282,6 +288,12 @@ private:
   }
 };
 
+template <std::invocable Callable, std::invocable CallableOnException>
+void swap(RAII<Callable, CallableOnException> &left,
+          RAII<Callable, CallableOnException> &right) noexcept {
+  left.swap(right);
+}
+
 // Save exceptions in multithreaded environment
 class ExceptionSaver final {
   std::atomic<size_t> nCapturedExceptions = 0;
@@ -303,10 +315,11 @@ public:
   size_t NSavedExceptions() const noexcept { return nSavedExceptions; }
 
   void swap(ExceptionSaver &other) noexcept {
+    using std::swap;
     nCapturedExceptions =
         other.nCapturedExceptions.exchange(nCapturedExceptions);
     nSavedExceptions = other.nSavedExceptions.exchange(nSavedExceptions);
-    std::swap(exceptions, other.exceptions);
+    swap(exceptions, other.exceptions);
   }
 
   // Wraps callable in a thread-save wrapper
@@ -327,8 +340,9 @@ public:
 #endif // !NDEBUG
     if (!nSavedExceptions)
       return;
+    using std::swap;
     auto e = std::exception_ptr{};
-    std::swap(e, exceptions[--nSavedExceptions]);
+    swap(e, exceptions[--nSavedExceptions]);
     std::rethrow_exception(e);
   }
   void Drop() noexcept {
@@ -367,6 +381,10 @@ private:
     };
   }
 };
+
+void swap(ExceptionSaver &left, ExceptionSaver &right) noexcept {
+  left.swap(right);
+}
 
 template <typename Enum, Enum LastElement>
 constexpr Enum &operator++(Enum &element) noexcept {
