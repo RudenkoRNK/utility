@@ -13,7 +13,7 @@ template <template <typename...> typename Template, typename... Args>
 struct _isInstanceOf<Template<Args...>, Template> : std::true_type {};
 
 template <template <typename...> typename Template, typename Instance>
-auto constexpr static isInstanceOf = _isInstanceOf<Instance, Template>::value;
+constexpr static auto isInstanceOf = _isInstanceOf<Instance, Template>::value;
 
 template <typename Callable> struct CallableTraits final {
 private:
@@ -34,36 +34,36 @@ private:
   struct LambdaOrMethodArgTypes<Result (CallableAddress::*)(Args...)
                                     const noexcept> {
     using Types = typename std::tuple<Result, Args...>;
-    auto constexpr static isCallableConst = true;
+    constexpr static auto isCallableConst = true;
   };
   template <typename CallableAddress, typename Result, typename... Args>
   struct LambdaOrMethodArgTypes<Result (CallableAddress::*)(Args...)> {
     using Types = typename std::tuple<Result, Args...>;
-    auto constexpr static isCallableConst = false;
+    constexpr static auto isCallableConst = false;
   };
   template <typename CallableAddress, typename Result, typename... Args>
   struct LambdaOrMethodArgTypes<Result (CallableAddress::*)(Args...) noexcept> {
     using Types = typename std::tuple<Result, Args...>;
-    auto constexpr static isCallableConst = false;
+    constexpr static auto isCallableConst = false;
   };
 
   template <typename Callable_, CallableKind> struct ArgTypes_;
   template <typename Callable_>
   struct ArgTypes_<Callable_, CallableKind::Function> {
     using Types = typename FunctionArgTypes<Callable_>::Types;
-    auto constexpr static isCallableConst = true;
+    constexpr static auto isCallableConst = true;
   };
   template <typename Callable_>
   struct ArgTypes_<Callable_, CallableKind::Lambda> {
     using Types = typename LambdaOrMethodArgTypes<decltype(
         &Callable_::operator())>::Types;
-    auto constexpr static isCallableConst = LambdaOrMethodArgTypes<decltype(
+    constexpr static auto isCallableConst = LambdaOrMethodArgTypes<decltype(
         &Callable_::operator())>::isCallableConst;
   };
   template <typename Callable_>
   struct ArgTypes_<Callable_, CallableKind::Method> {
     using Types = typename LambdaOrMethodArgTypes<Callable_>::Types;
-    auto constexpr static isCallableConst =
+    constexpr static auto isCallableConst =
         LambdaOrMethodArgTypes<Callable_>::isCallableConst;
   };
 
@@ -76,8 +76,8 @@ private:
   }
 
   template <class Callable_, size_t... Indices>
-  auto static constexpr GenerateFunctionType(
-      std::integer_sequence<size_t, Indices...>)
+  constexpr static auto
+  GenerateFunctionType(std::integer_sequence<size_t, Indices...>)
       -> std::function<typename CallableTraits<Callable_>::ReturnType(
           typename CallableTraits<Callable_>::template ArgType<Indices>...)>;
 
@@ -87,25 +87,25 @@ private:
   using Types = typename ArgTypes::Types;
 
 public:
-  size_t constexpr static nTypes = std::tuple_size_v<Types>;
-  size_t constexpr static nArguments = nTypes - 1;
+  constexpr static size_t nTypes = std::tuple_size_v<Types>;
+  constexpr static size_t nArguments = nTypes - 1;
   template <size_t n> using Type = std::tuple_element_t<n, Types>;
   template <size_t n> using ArgType = std::tuple_element_t<n + 1, Types>;
   using ReturnType = std::tuple_element_t<0, Types>;
   using std_function = decltype(GenerateFunctionType<RawCallable>(
       std::make_index_sequence<nArguments>{}));
   template <size_t n>
-  bool constexpr static isLValueReference = std::is_lvalue_reference_v<Type<n>>;
+  constexpr static bool isLValueReference = std::is_lvalue_reference_v<Type<n>>;
   template <size_t n>
-  bool constexpr static isRValueReference = std::is_rvalue_reference_v<Type<n>>;
+  constexpr static bool isRValueReference = std::is_rvalue_reference_v<Type<n>>;
   template <size_t n>
-  bool constexpr static isReference = std::is_reference_v<Type<n>>;
+  constexpr static bool isReference = std::is_reference_v<Type<n>>;
   template <size_t n>
-  bool constexpr static isValue = !isReference<n> && !std::is_void_v<Type<n>>;
+  constexpr static bool isValue = !isReference<n> && !std::is_void_v<Type<n>>;
   template <size_t n>
-  bool constexpr static isConst =
+  constexpr static bool isConst =
       std::is_const_v<std::remove_reference_t<Type<n>>>;
-  bool constexpr static isCallableConst = ArgTypes::isCallableConst;
+  constexpr static bool isCallableConst = ArgTypes::isCallableConst;
 
   template <size_t n>
   constexpr static decltype(auto)
