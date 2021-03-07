@@ -361,7 +361,7 @@ public:
 private:
   template <class Callable, size_t... Indices>
   auto _Wrap(Callable &&callable, std::integer_sequence<size_t, Indices...>) {
-    using ReturnType = typename CallableTraits<Callable>::template Type<0>;
+    using ReturnType = typename CallableTraits<Callable>::ReturnType;
     return [&](typename CallableTraits<Callable>::template ArgType<
                Indices>... args) noexcept {
       try {
