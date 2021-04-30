@@ -213,7 +213,7 @@ public:
     swap(originalValue, other.originalValue);
   }
 
-  ~SaveRestore() noexcept {
+  ~SaveRestore() {
     if (!restoreTo)
       return;
     *restoreTo = std::move(originalValue.value());
@@ -309,7 +309,7 @@ public:
     swap(other);
     return *this;
   }
-  ~ExceptionSaver() { Rethrow(); }
+  ~ExceptionSaver() noexcept(false) { Rethrow(); }
 
   size_t NCapturedExceptions() const noexcept { return nCapturedExceptions; }
   size_t NSavedExceptions() const noexcept { return nSavedExceptions; }
