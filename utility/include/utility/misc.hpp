@@ -90,7 +90,7 @@ constexpr Generator &GetRandomGenerator() {
 }
 
 template <typename FG, typename... Args>
-std::chrono::nanoseconds _Benchmark(FG &&Func, size_t nRuns, Args &&... args) {
+std::chrono::nanoseconds _Benchmark(FG &&Func, size_t nRuns, Args &&...args) {
   static_assert(CallableTraits<FG>::nArguments == sizeof...(args));
   auto start = std::chrono::steady_clock::now();
   for (auto i = 0; i != nRuns; ++i)
@@ -113,7 +113,7 @@ std::chrono::nanoseconds _Benchmark2(FG &&Func, Tuple &&tuple,
 }
 
 template <typename FG, typename... Args>
-std::chrono::nanoseconds Benchmark(FG &&Func, Args &&... args) {
+std::chrono::nanoseconds Benchmark(FG &&Func, Args &&...args) {
   if constexpr (CallableTraits<FG>::nArguments + 1 == sizeof...(args)) {
     auto &&tuple = std::forward_as_tuple(std::forward<Args>(args)...);
     auto &&Inds =

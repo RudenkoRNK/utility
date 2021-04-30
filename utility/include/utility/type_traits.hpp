@@ -55,10 +55,10 @@ private:
   };
   template <typename Callable_>
   struct ArgTypes_<Callable_, CallableKind::Lambda> {
-    using Types = typename LambdaOrMethodArgTypes<decltype(
-        &Callable_::operator())>::Types;
-    constexpr static auto isCallableConst = LambdaOrMethodArgTypes<decltype(
-        &Callable_::operator())>::isCallableConst;
+    using Types = typename LambdaOrMethodArgTypes<
+        decltype(&Callable_::operator())>::Types;
+    constexpr static auto isCallableConst = LambdaOrMethodArgTypes<
+        decltype(&Callable_::operator())>::isCallableConst;
   };
   template <typename Callable_>
   struct ArgTypes_<Callable_, CallableKind::Method> {
@@ -76,8 +76,8 @@ private:
   }
 
   template <class Callable_, size_t... Indices>
-  constexpr static auto
-  GenerateFunctionType(std::integer_sequence<size_t, Indices...>)
+  constexpr static auto GenerateFunctionType(
+      std::integer_sequence<size_t, Indices...>)
       -> std::function<typename CallableTraits<Callable_>::ReturnType(
           typename CallableTraits<Callable_>::template ArgType<Indices>...)>;
 

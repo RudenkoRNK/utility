@@ -11,7 +11,8 @@
 
 namespace Utility {
 
-template <typename Number> concept Numeric = requires() {
+template <typename Number>
+concept Numeric = requires() {
   requires std::is_default_constructible_v<Number>;
   requires std::is_arithmetic_v<Number> || isInstanceOf<std::complex, Number>;
   requires std::is_same_v<Number, std::remove_cvref_t<Number>>;
@@ -49,8 +50,9 @@ template <Numeric Number> constexpr auto RMS(std::vector<Number> const &v) {
 }
 
 template <Numeric NumberX, Numeric NumberY>
-requires std::common_with<NumberX, NumberY> constexpr auto
-LeastSquares(std::vector<NumberX> const &x, std::vector<NumberY> const &y) {
+requires std::common_with<NumberX, NumberY>
+constexpr auto LeastSquares(std::vector<NumberX> const &x,
+                            std::vector<NumberY> const &y) {
   assert(x.size() == y.size());
   assert(y.size() >= 2);
   auto n = y.size();

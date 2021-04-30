@@ -666,7 +666,7 @@ RAII2(NoExceptionCallable &&)
 
 template <class Policy>
 concept CallPolicy = std::is_same_v<Policy, CallAlways> ||
-                     std::is_same_v<Policy, CallOnException>;
+    std::is_same_v<Policy, CallOnException>;
 class RAII3 final {
   std::function<void()> callNormally;
   std::function<void()> callOnException;
