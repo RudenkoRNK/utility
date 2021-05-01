@@ -29,10 +29,10 @@ jobs:
        BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2
       run: |
            export BOOST_VERSION=$([[ $a =~ /(boost[0-9a-zA-Z_]*).tar.bz2$ ]] && echo ${BASH_REMATCH[1]})
-           export BOOST_FILE=$BOOST_VERSION.tar.bz2
+           export BOOST_FILE=${{BOOST_VERSION}}.tar.bz2
            export BOOST_ROOT=${{github.workspace}}/$BOOST_VERSION
-           wget --directory-prefix=${{github.workspace}} $BOOST_URL
-           tar --bzip2 -xf ${{github.workspace}}/$BOOST_FILE --directory ${{github.workspace}}
+           wget --directory-prefix=${{github.workspace}} $BOOST_URL -q
+           tar --bzip2 -xf ${{github.workspace}}/${{BOOST_FILE}} --directory ${{github.workspace}}
            mkdir ${{github.workspace}}/build
     - name: Configure CMake
       env:
