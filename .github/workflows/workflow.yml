@@ -17,7 +17,7 @@ jobs:
     
     strategy:
       matrix:
-        compiler: [clang, gcc]
+        toolchain: [llvm, gcc]
 
     steps:
     - name: Checkout repository
@@ -31,7 +31,7 @@ jobs:
         path: ${{env.BOOST_VERSION}}
         key: ${{runner.os}}-boost
     - name: Install GCC
-      if: ${{matrix.compiler == 'gcc'}}
+      if: ${{matrix.toolchain == 'gcc'}}
       run: sudo apt-get install gcc-11 g++-11
     - name: Install boost (if not cached)
       if: steps.cache-boost.outputs.cache-hit != 'true'
@@ -42,10 +42,10 @@ jobs:
       run: mkdir build
     - name: Configure cmake
       run: |
-        if [ "${{matrix.compiler}}" == 'gcc' ]; then
+        if [ "${{matrix.toolchain}}" == 'gcc' ]; then
           export CC=gcc-11
           export CXX=g++-11
-        elif [ "${{matrix.compiler}}" == 'clang' ]; then
+        elif [ "${{matrix.toolchain}}" == 'llvm' ]; then
           export CC=clang-11
           export CXX=clang++-11
         fi
