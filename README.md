@@ -1,4 +1,5 @@
 # Utility
+[![GitHub Actions Status](https://github.com/RudenkoRNK/utility/actions/workflows/workflow.yml/badge.svg)](https://github.com/RudenkoRNK/utility/actions)
 A header-only library with simple functions for everyday use.
 
 ## How to build tests
