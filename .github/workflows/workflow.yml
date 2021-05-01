@@ -43,7 +43,7 @@ jobs:
            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
            -DUTILITY_TEST=ON
            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-           -BOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
+           -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
 
     - name: Build
       # Build your program with the given configuration
