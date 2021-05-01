@@ -51,6 +51,8 @@ jobs:
         -DUTILITY_TEST=ON \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
         -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
+    - name: TMP
+      run: ls -la /usr/bin
     - name: Run clang-tidy
       run: git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -p1 -path build > clang-tidy.log
     # Add patch with formatting fixes to CI job artifacts
