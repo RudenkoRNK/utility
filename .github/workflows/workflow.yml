@@ -14,6 +14,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        compiler: [clang, gcc]
 
     steps:
     - uses: actions/checkout@v2
@@ -26,7 +30,7 @@ jobs:
         path: ${{github.workspace}}/${{env.BOOST_VERSION}}
         key: ${{ runner.os }}-boost
     - name: GCC
-      if: false
+      if: ${{ matrix.compiler }} == 'gcc'
       run: sudo apt-get install gcc-11 g++-11
     - name: Boost
       if: steps.cache-boost.outputs.cache-hit != 'true'
@@ -36,15 +40,19 @@ jobs:
     - name: Setup
       run: mkdir ${{github.workspace}}/build
     - name: Configure CMake
-      env:
-       CC:   clang-11
-       CXX:  clang++-11
-      run: >
-        cmake 
-        -B ${{github.workspace}}/build
-        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        -DUTILITY_TEST=ON
-        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+      run: |
+        if [ "${{ matrix.compiler }}" == 'gcc' ]; then
+          export CC=gcc-11
+          export CXX=g++-11
+        elif [ "${{ matrix.compiler }}" == 'clang' ]; then
+          export CC=clang-11
+          export CXX=clang++-11
+        fi
+        cmake \
+        -B ${{github.workspace}}/build \
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+        -DUTILITY_TEST=ON \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
         -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel 8
