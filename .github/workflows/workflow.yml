@@ -31,7 +31,6 @@ jobs:
        BOOST_FILE: $BOOST_VERSION.tar.bz2
        BOOST_ROOT: ${{github.workspace}}/$BOOST_VERSION
       run: |
-           export BOOST_URL=
            wget --directory-prefix=${{github.workspace}} $BOOST_URL
            tar --bzip2 -xf ${{github.workspace}}/$BOOST_FILE --directory ${{github.workspace}}
            mkdir ${{github.workspace}}/build
