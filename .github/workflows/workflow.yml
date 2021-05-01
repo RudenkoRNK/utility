@@ -22,25 +22,32 @@ jobs:
     - uses: actions/checkout@v2
     - name: Packages
       run: |
-           sudo apt-get update -y
            sudo apt-get install gcc-11 g++-11
-           sudo apt-get install -y libboost-dev
     - name: Setup
+      env:
+       BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2
+       BOOST_VERSION: $([[ $a =~ /(boost[0-9a-zA-Z_]*).tar.bz2$ ]] && echo ${BASH_REMATCH[1]})
+       BOOST_FILE: $BOOST_VERSION.tar.bz2
+       BOOST_ROOT: ${{github.workspace}}/$BOOST_VERSION
       run: |
+           export BOOST_URL=
+           wget --directory-prefix=${{github.workspace}} $BOOST_URL
+           tar --bzip2 -xf ${{github.workspace}}/$BOOST_FILE --directory ${{github.workspace}}
            mkdir ${{github.workspace}}/build
     - name: Configure CMake
-      shell: bash
       env:
        CC:   gcc-11
        CXX:  g++-11
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
+          echo $BOOST_URL &&
            cmake 
            -B ${{github.workspace}}/build
            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
            -DUTILITY_TEST=ON
            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+           -BOOST_ROOT=$BOOST_ROOT
 
     - name: Build
       # Build your program with the given configuration
