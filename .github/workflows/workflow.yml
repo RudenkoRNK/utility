@@ -57,7 +57,9 @@ jobs:
         -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
     - name: Run clang-tidy
       if: ${{ matrix.compiler == 'clang' }}
-      run: clang-tidy-11 -p build --header-filter="evolution/utility/.*" utility_test/test.cpp
+      run: |
+        ls -la /usr/bin
+        clang-tidy-11 -p build --header-filter="evolution/utility/.*" utility_test/test.cpp
     - name: Build tests
       run: cmake --build build --config ${{env.BUILD_TYPE}} --parallel 8
     - name: Run tests
