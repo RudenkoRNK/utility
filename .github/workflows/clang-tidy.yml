@@ -17,6 +17,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
     - name: Update system
       run: sudo apt-get update
     - name: Load cached boost
@@ -50,7 +52,7 @@ jobs:
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
         -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
     - name: Run clang-tidy
-      run: git diff -U0 --no-color ${GITHUB_SHA}^1 ${GITHUB_SHA} | clang-tidy-diff-11.py -p1 -path build > clang-tidy.log
+      run: git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -p1 -path build > clang-tidy.log
     # Add patch with formatting fixes to CI job artifacts
     - uses: actions/upload-artifact@v1
       with:
