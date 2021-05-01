@@ -58,7 +58,7 @@ jobs:
     - name: Run clang-tidy
       if: ${{ matrix.compiler == 'clang' }}
       run: |
-        sudo apt-get install clang-tidy
+        sudo apt-get install clang-tidy-11
         clang-tidy-11 -p build --header-filter="evolution/utility/.*" utility_test/test.cpp
     - name: Build tests
       run: cmake --build build --config ${{env.BUILD_TYPE}} --parallel 8
