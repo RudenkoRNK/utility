@@ -52,8 +52,10 @@ jobs:
         # An explicit key for restoring and saving the cache
         key: ${{ runner.os }}-boost
     - name: GCC
-      if: steps.cache-gcc.outputs.cache-hit != 'true'
-      run: sudo apt-get install gcc-11 g++-11
+      #if: steps.cache-gcc.outputs.cache-hit != 'true'
+      run: |
+        sudo apt-get install gcc-11 g++-11
+        echo AAAAAAAAAA $(which g++-11)
     - name: Boost
       if: steps.cache-boost.outputs.cache-hit != 'true'
       run: |
