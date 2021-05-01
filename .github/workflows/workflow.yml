@@ -23,17 +23,15 @@ jobs:
       id: cache-boost
       uses: actions/cache@v2.1.5
       with:
-        # A list of files, directories, and wildcard patterns to cache and restore
         path: ${{github.workspace}}/${{env.BOOST_VERSION}}
-        # An explicit key for restoring and saving the cache
         key: ${{ runner.os }}-boost
     - name: GCC
       run: sudo apt-get install gcc-11 g++-11
     - name: Boost
       if: steps.cache-boost.outputs.cache-hit != 'true'
       run: |
-           wget --directory-prefix=${{github.workspace}} ${{env.BOOST_URL}} -q
-           tar --bzip2 -xf ${{github.workspace}}/${{env.BOOST_VERSION}}.tar.bz2 --directory ${{github.workspace}}
+        wget --directory-prefix=${{github.workspace}} ${{env.BOOST_URL}} -q
+        tar --bzip2 -xf ${{github.workspace}}/${{env.BOOST_VERSION}}.tar.bz2 --directory ${{github.workspace}}
     - name: Setup
       run: mkdir ${{github.workspace}}/build
     - name: Configure CMake
@@ -41,12 +39,12 @@ jobs:
        CC:   gcc-11
        CXX:  g++-11
       run: >
-           cmake 
-           -B ${{github.workspace}}/build
-           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-           -DUTILITY_TEST=ON
-           -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-           -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
+        cmake 
+        -B ${{github.workspace}}/build
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -DUTILITY_TEST=ON
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel 8
     - name: Test
