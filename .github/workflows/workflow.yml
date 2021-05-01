@@ -26,6 +26,7 @@ jobs:
         path: ${{github.workspace}}/${{env.BOOST_VERSION}}
         key: ${{ runner.os }}-boost
     - name: GCC
+      if: false
       run: sudo apt-get install gcc-11 g++-11
     - name: Boost
       if: steps.cache-boost.outputs.cache-hit != 'true'
@@ -36,8 +37,8 @@ jobs:
       run: mkdir ${{github.workspace}}/build
     - name: Configure CMake
       env:
-       CC:   gcc-11
-       CXX:  g++-11
+       CC:   clang-11
+       CXX:  clang++-11
       run: >
         cmake 
         -B ${{github.workspace}}/build
