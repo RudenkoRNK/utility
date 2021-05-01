@@ -37,7 +37,7 @@ jobs:
     - name: Setup
       run: |
         mkdir build
-        ln -s /usr/bin/clang-tidy-11 /usr/bin/clang-tidy
+        sudo ln -s /usr/bin/clang-tidy-11 /usr/bin/clang-tidy
     - name: Configure cmake
       run: |
         if [ "${{matrix.toolchain}}" == 'gcc' ]; then
