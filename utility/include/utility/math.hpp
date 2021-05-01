@@ -11,8 +11,6 @@
 
 namespace Utility {
 
-inline int foddddo() { return 3; }
-
 template <typename Number>
 concept Numeric = requires() {
   requires std::is_default_constructible_v<Number>;
