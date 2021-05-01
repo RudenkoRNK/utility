@@ -11,7 +11,7 @@
 
 namespace Utility {
   
-int foddddo() { return 3; }
+inline int foddddo() { return 3; }
 
 template <typename Number>
 concept Numeric = requires() {
