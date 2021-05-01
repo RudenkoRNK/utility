@@ -11,7 +11,7 @@
 #include <random>
 #include <unordered_map>
 #include <unordered_set>
-   #include <utility>
+#include <utility>
 
 using namespace Utility;
 
@@ -35,7 +35,6 @@ BOOST_AUTO_TEST_CASE(arg_traits_test) {
 
 BOOST_AUTO_TEST_CASE(arg_traits_test_2) {
   auto x = 0;
-  auto adskf = 4;
   // NOLINTNEXTLINE
   auto lambda1 = [x](std::string const &) mutable {
     ++x;
