@@ -51,7 +51,6 @@ jobs:
         -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
     - name: TMP
       run: |
-        sudo apt-get install clang-tidy-diff-11
         sudo apt-get install clang-tidy-diff-11.0
         echo "clang-tidy-diff-11" && clang-tidy-diff-11
         echo "clang-tidy-diff-10" && clang-tidy-diff-10
