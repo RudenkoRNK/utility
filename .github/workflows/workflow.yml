@@ -28,7 +28,7 @@ jobs:
       id: cache-boost
       uses: actions/cache@v2.1.5
       with:
-        path: ${{github.workspace}}/${{env.BOOST_VERSION}}
+        path: ${{env.BOOST_VERSION}}
         key: ${{ runner.os }}-boost
     - name: Install GCC
       if: ${{ matrix.compiler == 'gcc' }}
@@ -36,10 +36,10 @@ jobs:
     - name: Install boost (if not cached)
       if: steps.cache-boost.outputs.cache-hit != 'true'
       run: |
-        wget --directory-prefix=${{github.workspace}} ${{env.BOOST_URL}} -q
-        tar --bzip2 -xf ${{github.workspace}}/${{env.BOOST_VERSION}}.tar.bz2 --directory ${{github.workspace}}
+        wget -q ${{env.BOOST_URL}}
+        tar --bzip2 -xf ${{env.BOOST_VERSION}}.tar.bz2
     - name: Setup
-      run: mkdir ${{github.workspace}}/build
+      run: mkdir build
     - name: Configure cmake
       run: |
         if [ "${{ matrix.compiler }}" == 'gcc' ]; then
@@ -50,13 +50,12 @@ jobs:
           export CXX=clang++-11
         fi
         cmake \
-        -B ${{github.workspace}}/build \
+        -B build \
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
         -DUTILITY_TEST=ON \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
         -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
     - name: Build tests
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel 8
+      run: cmake --build build --config ${{env.BUILD_TYPE}} --parallel 8
     - name: Run tests
-      working-directory: ${{github.workspace}}/build
-      run: utility_test/UtilityTest
+      run: build/utility_test/UtilityTest
