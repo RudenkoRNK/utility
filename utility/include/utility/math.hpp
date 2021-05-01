@@ -7,7 +7,7 @@
 #include <concepts>
 #include <numeric>
 #include <type_traits>
-#include <vector>
+ #include <vector>
 
 namespace Utility {
 
