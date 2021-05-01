@@ -27,16 +27,15 @@ jobs:
     - name: Setup
       env:
        BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2
-       BOOST_VERSION: $([[ ${{env.BOOST_URL}} =~ /(boost[0-9a-zA-Z_]*).tar.bz2$ ]] && echo ${BASH_REMATCH[1]})
-       BOOST_FILE: ${{env.BOOST_VERSION}}.tar.bz2
-       BOOST_ROOT: ${{github.workspace}}/${{env.BOOST_VERSION}}
       run: |
-           echo ${{env.BOOST_URL}}
-           echo ${{env.BOOST_VERSION}}
-           echo ${{env.BOOST_FILE}}
-           echo ${{env.BOOST_ROOT}}
+           export BOOST_VERSION=$([[ ${{env.BOOST_URL}} =~ /(boost[0-9a-zA-Z_]*).tar.bz2$ ]] && echo ${BASH_REMATCH[1]})
+           export BOOST_FILE=${{env.BOOST_VERSION}}.tar.bz2
+           export BOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
+           echo ${{BOOST_VERSION}}
+           echo ${{BOOST_FILE}}
+           echo ${{BOOST_ROOT}}
            wget --directory-prefix=${{github.workspace}} $BOOST_URL -q
-           tar --bzip2 -xf ${{github.workspace}}/${{env.BOOST_FILE}} --directory ${{github.workspace}}
+           tar --bzip2 -xf ${{github.workspace}}/${{BOOST_FILE}} --directory ${{github.workspace}}
            mkdir ${{github.workspace}}/build
     - name: Configure CMake
       env:
@@ -51,7 +50,7 @@ jobs:
            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
            -DUTILITY_TEST=ON
            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-           -BOOST_ROOT=${{env.BOOST_ROOT}}
+           -BOOST_ROOT=$BOOST_ROOT
 
     - name: Build
       # Build your program with the given configuration
