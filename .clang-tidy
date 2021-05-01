@@ -1,8 +1,5 @@
 ---
 Checks:          '*,
                   -llvm-header-guard,
-                  -llvmlibc-restrict-system-libc-headers,
-                  -llvmlibc-callee-namespace,
                   '
-HeaderFilterRegex: '.*'
-
+HeaderFilterRegex: 'evolution/utility/.*'

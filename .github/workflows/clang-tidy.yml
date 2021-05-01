@@ -1,0 +1,65 @@
+name: Clang tidy
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+env:
+  BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2
+  BOOST_VERSION: boost_1_76_0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 2
+    - name: Update system
+      run: sudo apt-get update
+    - name: Load cached boost
+      id: cache-boost
+      uses: actions/cache@v2.1.5
+      with:
+        path: ${{env.BOOST_VERSION}}
+        key: ${{runner.os}}-boost
+    - name: Install boost (if not cached)
+      if: steps.cache-boost.outputs.cache-hit != 'true'
+      run: |
+        wget -q ${{env.BOOST_URL}}
+        tar --bzip2 -xf ${{env.BOOST_VERSION}}.tar.bz2
+    - name: Install clang-tidy
+      run: sudo apt-get install clang-tidy-11
+    - name: Setup
+      run: |
+        mkdir build
+        touch clang-tidy.patch
+        sudo ln -s /usr/bin/clang-tidy-11 /usr/bin/clang-tidy
+    - name: Configure cmake
+      run: |
+        if [ "${{matrix.toolchain}}" == 'gcc' ]; then
+          export CC=gcc-11
+          export CXX=g++-11
+        elif [ "${{matrix.toolchain}}" == 'llvm' ]; then
+          export CC=clang-11
+          export CXX=clang++-11
+        fi
+        cmake \
+        -B build \
+        -DCMAKE_BUILD_TYPE=Debug \
+        -DUTILITY_TEST=ON \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+        -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
+    - name: Run clang-tidy
+      run: git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -j8 -p1 -path build -export-fixes clang-tidy.patch
+    # Add patch with formatting fixes to CI job artifacts
+    - uses: actions/upload-artifact@v1
+      with:
+        name: clang-tidy.patch
+        path: clang-tidy.patch
+    - name: Check if clang-tidy log is empty
+      run: bash -c "if [ -s clang-tidy.patch ]; then cat clang-tidy.patch; exit 1; fi"
