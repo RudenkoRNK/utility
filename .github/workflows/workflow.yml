@@ -40,6 +40,8 @@ jobs:
         tar --bzip2 -xf ${{github.workspace}}/${{env.BOOST_VERSION}}.tar.bz2 --directory ${{github.workspace}}
     - name: Setup
       run: mkdir ${{github.workspace}}/build
+    - name: TMP
+      run: ls -la
     - name: Configure cmake
       run: |
         if [ "${{ matrix.compiler }}" == 'gcc' ]; then
