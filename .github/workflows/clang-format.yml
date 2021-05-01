@@ -16,7 +16,7 @@ jobs:
     - name: Run clang-format for the patch
       run: >
         git diff --no-color ${GITHUB_SHA}^1 ${GITHUB_SHA} --name-only -- |
-        grep -v "/test/" | xargs git diff -U0 --no-color ${GITHUB_SHA}^1 ${GITHUB_SHA} -- |
+        xargs git diff -U0 --no-color ${GITHUB_SHA}^1 ${GITHUB_SHA} -- |
         clang-format-diff-11 -p1 -binary clang-format-11 > ./clang-format.patch
     # Add patch with formatting fixes to CI job artifacts
     - uses: actions/upload-artifact@v1
