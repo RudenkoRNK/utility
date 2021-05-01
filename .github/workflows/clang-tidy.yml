@@ -51,9 +51,7 @@ jobs:
         -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
     - name: TMP
       run: |
-        sudo apt-get install clang-tidy-diff-11.0
-        echo "clang-tidy-diff-11" && clang-tidy-diff-11
-        echo "clang-tidy-diff-10" && clang-tidy-diff-10
+        ls -la /usr/bin
     - name: Run clang-tidy
       run: clang-tidy-11 -p build --header-filter="evolution/utility/.*" utility_test/test.cpp > clang-tidy.log
     # Add patch with formatting fixes to CI job artifacts
