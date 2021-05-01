@@ -35,7 +35,9 @@ jobs:
     - name: Install clang-tidy
       run: sudo apt-get install clang-tidy-11
     - name: Setup
-      run: mkdir build
+      run: |
+        mkdir build
+        ln -s /usr/bin/clang-tidy-11 /usr/bin/clang-tidy
     - name: Configure cmake
       run: |
         if [ "${{matrix.toolchain}}" == 'gcc' ]; then
@@ -51,10 +53,8 @@ jobs:
         -DUTILITY_TEST=ON \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
         -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
-    - name: TMP
-      run: ls -la /usr/bin
     - name: Run clang-tidy
-      run: git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -j8 -p1 -path build -binary clang-tidy-11 -export-fixes clang-tidy.patch
+      run: git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -j8 -p1 -path build -export-fixes clang-tidy.patch
     # Add patch with formatting fixes to CI job artifacts
     - uses: actions/upload-artifact@v1
       with:
