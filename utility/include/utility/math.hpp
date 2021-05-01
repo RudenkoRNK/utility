@@ -11,9 +11,7 @@
 
 namespace Utility {
   
-int foo() {
- return 3; 
-}
+int foo() { return 3; }
 
 template <typename Number>
 concept Numeric = requires() {
