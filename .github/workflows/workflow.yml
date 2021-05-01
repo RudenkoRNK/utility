@@ -30,7 +30,7 @@ jobs:
         path: ${{github.workspace}}/${{env.BOOST_VERSION}}
         key: ${{ runner.os }}-boost
     - name: GCC
-      if: strategy.matrix.compiler == 'gcc'
+      if: ${{ matrix.compiler == 'gcc' }}
       run: sudo apt-get install gcc-11 g++-11
     - name: Boost
       if: steps.cache-boost.outputs.cache-hit != 'true'
@@ -40,19 +40,15 @@ jobs:
     - name: Setup
       run: mkdir ${{github.workspace}}/build
     - name: Configure CMake
-      run: |
-        if [ "${{ matrix.compiler }}" == 'gcc' ]; then
-          export CC=gcc-11
-          export CXX=g++-11
-        elif [ "${{ matrix.compiler }}" == 'clang' ]; then
-          export CC=clang-11
-          export CXX=clang++-11
-        fi
-        cmake \
-        -B ${{github.workspace}}/build \
-        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-        -DUTILITY_TEST=ON \
-        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+      env:
+        CC: "${{ (matrix.compiler == 'gcc' && 'gcc-11') || (matrix.compiler == 'clang' && 'clang-11) }}"
+        CXX: "${{ (matrix.compiler == 'gcc' && 'g++-11') || (matrix.compiler == 'clang' && 'clang++-11) }}"
+      run: >
+        cmake
+        -B ${{github.workspace}}/build
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -DUTILITY_TEST=ON
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
         -DBOOST_ROOT=${{github.workspace}}/${{env.BOOST_VERSION}}
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel 8
