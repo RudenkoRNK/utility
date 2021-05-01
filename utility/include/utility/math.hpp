@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace Utility {
-  
+
 inline int foddddo() { return 3; }
 
 template <typename Number>
