@@ -413,8 +413,11 @@ BOOST_AUTO_TEST_CASE(raii_test) {
     Act(size_t &copyCnt, bool &act) : copyCnt(copyCnt), act(act) {}
     Act(Act const &a) : copyCnt(a.copyCnt), act(a.act) { ++copyCnt; }
     Act(Act &&a) : copyCnt(a.copyCnt), act(a.act) {}
-    Act &operator=(Act const &a) { ++copyCnt; }
-    Act &operator=(Act &&) {}
+    Act &operator=(Act const &a) {
+      ++copyCnt;
+      return *this;
+    }
+    Act &operator=(Act &&) { return *this; }
     void operator()() noexcept { act = true; }
   };
 

@@ -9,6 +9,7 @@
 #include <numeric>
 #include <optional>
 #include <random>
+#include <atomic>
 #include <vector>
 
 namespace Utility {
@@ -84,7 +85,7 @@ std::vector<size_t> GetSortPermutation(Vector const &v) {
 }
 
 template <typename Generator = std::mt19937>
-constexpr Generator &GetRandomGenerator() {
+Generator &GetRandomGenerator() {
   auto static thread_local generator = Generator{std::random_device{}()};
   return generator;
 }
