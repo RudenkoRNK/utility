@@ -41,8 +41,8 @@ jobs:
       run: mkdir ${{github.workspace}}/build
     - name: Configure CMake
       env:
-        CC: "${{ (matrix.compiler == 'gcc' && 'gcc-11') || (matrix.compiler == 'clang' && 'clang-11) }}"
-        CXX: "${{ (matrix.compiler == 'gcc' && 'g++-11') || (matrix.compiler == 'clang' && 'clang++-11) }}"
+        CC: "${{ matrix.compiler == 'gcc' && 'gcc-11' || 'clang-11 }}"
+        CXX: "${{ matrix.compiler == 'gcc' && 'g++-11' || 'clang++-11 }}"
       run: >
         cmake
         -B ${{github.workspace}}/build
