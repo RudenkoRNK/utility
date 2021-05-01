@@ -21,7 +21,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: update
-      run: sudo apt-get update
+      run: sudo apt-get update && sudo apt-get upgrade
     - name: boost
       run: sudo apt-get install -yq libboost-dev
 
