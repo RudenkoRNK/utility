@@ -54,11 +54,11 @@ jobs:
     - name: TMP
       run: ls -la /usr/bin
     - name: Run clang-tidy
-      run: git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -p1 -path build > clang-tidy.log
+      run: git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -j8 -p1 -path build -binary clang-tidy-11 -export-fixes clang-tidy.patch
     # Add patch with formatting fixes to CI job artifacts
     - uses: actions/upload-artifact@v1
       with:
-        name: clang-tidy.log
-        path: clang-tidy.log
+        name: clang-tidy.patch
+        path: clang-tidy.patch
     - name: Check if clang-tidy log is empty
-      run: bash -c "if [ -s clang-tidy.log ]; then cat clang-tidy.log; exit 1; fi"
+      run: bash -c "if [ -s clang-tidy.patch ]; then cat clang-tidy.patch; exit 1; fi"
