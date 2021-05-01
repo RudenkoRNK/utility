@@ -19,6 +19,30 @@ jobs:
     - uses: actions/checkout@v2
     - name: Update
       run: sudo apt-get update
+    - name: Cache gcc
+      id: cache-gcc
+      uses: actions/cache@v2.1.5
+      with:
+        path: |
+          /usr/bin/cpp-11
+          /usr/bin/g++-11
+          /usr/bin/gcc-11
+          /usr/bin/gcc-11-base
+          /usr/bin/libasan6
+          /usr/bin/libatomic1
+          /usr/bin/libcc1-0
+          /usr/bin/libgcc-11-dev
+          /usr/bin/libgcc-s1
+          /usr/bin/libgomp1
+          /usr/bin/libitm1
+          /usr/bin/liblsan0
+          /usr/bin/libquadmath0
+          /usr/bin/libstdc++-11-dev
+          /usr/bin/libstdc++6
+          /usr/bin/libtsan0
+          /usr/bin/libubsan1
+          /usr/bin/libgcc-11-dev
+        key: ${{ runner.os }}-gcc
     - name: Cache boost
       id: cache-boost
       uses: actions/cache@v2.1.5
@@ -28,6 +52,7 @@ jobs:
         # An explicit key for restoring and saving the cache
         key: ${{ runner.os }}-boost
     - name: GCC
+      if: steps.cache-gcc.outputs.cache-hit != 'true'
       run: sudo apt-get install gcc-11 g++-11
     - name: Boost
       if: steps.cache-boost.outputs.cache-hit != 'true'
