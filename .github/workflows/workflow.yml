@@ -20,7 +20,8 @@ jobs:
         compiler: [clang, gcc]
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
     - name: Update
       run: sudo apt-get update
     - name: Cache boost
