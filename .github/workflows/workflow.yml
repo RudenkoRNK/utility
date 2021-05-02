@@ -93,8 +93,10 @@ jobs:
       run: |
         #sudo ln -s -f /usr/bin/gcc-11 /usr/bin/gcc
         #sudo ln -s -f /usr/bin/g++-11 /usr/bin/g++
-        update-alternatives --set gcc "/usr/bin/gcc-11"
-        update-alternatives --set g++ "/usr/bin/g++-11"
+        #update-alternatives --set gcc "/usr/bin/gcc-11"
+        #update-alternatives --set g++ "/usr/bin/g++-11"
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 100
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100
     - name: Install valgrind
       if: ${{matrix.build_type == 'Debug'}}
       run: sudo apt-get install valgrind
