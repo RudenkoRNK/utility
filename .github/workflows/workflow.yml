@@ -82,35 +82,31 @@ jobs:
       uses: actions/checkout@v2
     - name: Update system
       run: sudo apt-get update
-    - name: Load cached boost
-      id: cache-boost
-      uses: actions/cache@v2.1.5
-      with:
-        path: ${{env.BOOST_VERSION}}
-        key: ${{runner.os}}-boost
+    - name: Install LLVM
+      run: |
+      if: ${{matrix.toolchain == 'llvm'}}
+        sudo ln -s -f /usr/bin/clang-11 /usr/bin/clang
+        sudo ln -s -f /usr/bin/clang++-11 /usr/bin/clang++
     - name: Install GCC
       if: ${{matrix.toolchain == 'gcc'}}
       run: |
         sudo apt-get install gcc-11 g++-11
         sudo ln -s -f /usr/bin/gcc-11 /usr/bin/gcc
         sudo ln -s -f /usr/bin/g++-11 /usr/bin/g++
-        #update-alternatives --set gcc "/usr/bin/gcc-11"
-        #update-alternatives --set g++ "/usr/bin/g++-11"
-        #sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 100
-        #sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100
     - name: Install valgrind
       if: ${{matrix.build_type == 'Debug'}}
       run: sudo apt-get install valgrind
+    - name: Load cached boost
+      id: cache-boost
+      uses: actions/cache@v2.1.5
+      with:
+        path: ${{env.BOOST_VERSION}}
+        key: ${{runner.os}}-boost
     - name: Install boost (if not cached)
       if: steps.cache-boost.outputs.cache-hit != 'true'
       run: |
         wget -q ${{env.BOOST_URL}}
         tar --bzip2 -xf ${{env.BOOST_VERSION}}.tar.bz2
-    - name: Setup
-      run: |
-        mkdir build
-        sudo ln -s -f /usr/bin/clang-11 /usr/bin/clang
-        sudo ln -s -f /usr/bin/clang++-11 /usr/bin/clang++
     - name: Configure cmake
       run: |
         if [ "${{matrix.toolchain}}" == 'gcc' ]; then
@@ -120,6 +116,7 @@ jobs:
           export CC=clang
           export CXX=clang++
         fi
+        mkdir build
         cmake $CMAKE_COMMON_OPTIONS -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
     - name: Build tests
       run: cmake --build build --config ${{matrix.build_type}} --parallel 8
