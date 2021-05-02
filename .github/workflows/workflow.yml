@@ -98,6 +98,9 @@ jobs:
     - name: Install GCC
       if: ${{matrix.toolchain == 'gcc'}}
       run: sudo apt-get install gcc-11 g++-11
+    - name: Install valgrind
+      if: ${{matrix.build_type == 'Debug'}}
+      run: sudo apt-get install valgrind
     - name: Install boost (if not cached)
       if: steps.cache-boost.outputs.cache-hit != 'true'
       run: |
@@ -124,3 +127,6 @@ jobs:
       run: cmake --build build --config ${{matrix.build_type}} --parallel 8
     - name: Run tests
       run: build/utility_test/UtilityTest
+    - name: Run valgrind
+      if: ${{matrix.build_type == 'Debug'}}
+      run: valgrind build/utility_test/UtilityTest
