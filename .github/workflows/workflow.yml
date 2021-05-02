@@ -7,9 +7,10 @@ on:
     branches: main
 
 env:
-  BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2
+  BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0
   BOOST_VERSION: boost_1_76_0
   CMAKE_COMMON_OPTIONS: -B build -DUTILITY_TEST=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBOOST_ROOT=${{github.workspace}}/boost_1_76_0
+  CORES: 2
 
 jobs:
   clang-format:
@@ -22,14 +23,16 @@ jobs:
     - name: Setup
       run: sudo ln -s /usr/bin/clang-format-diff-11 /usr/bin/clang-format-diff
     - name: Run clang-format for the patch
-      run: git diff -U0 --no-color HEAD^ | clang-format-diff -p1 > clang-format.patch
+      run: |
+        git diff -U0 --no-color HEAD^ | clang-format-diff -p1 > clang-format.patch
+        bash -c "if [ -s clang-format.patch ]; then cat clang-format.patch; exit 1; fi"
     - name: Upload clang-format.patch
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
+      if: ${{failure()}}
       with:
+        if-no-files-found: ignore
         name: clang-format.patch
         path: clang-format.patch
-    - name: Check if clang-format patch is empty
-      run: bash -c "if [ -s clang-format.patch ]; then cat clang-format.patch; exit 1; fi"
 
   clang-tidy:
     runs-on: ubuntu-latest
@@ -49,7 +52,7 @@ jobs:
     - name: Install boost (if not cached)
       if: steps.cache-boost.outputs.cache-hit != 'true'
       run: |
-        wget -q ${{env.BOOST_URL}}
+        wget -q ${{env.BOOST_URL}}.tar.bz2
         tar --bzip2 -xf ${{env.BOOST_VERSION}}.tar.bz2
     - name: Install clang-tidy
       run: |
@@ -61,20 +64,21 @@ jobs:
         CXX: clang++
       run: |
         mkdir build
-        cmake $CMAKE_COMMON_OPTIONS -DCMAKE_BUILD_TYPE=Debug
+        cmake ${{env.CMAKE_COMMON_OPTIONS}} -DCMAKE_BUILD_TYPE=Debug
     - name: Run clang-tidy
       run: |
-        touch clang-tidy.patch
         git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -j8 -p1 -path build -export-fixes clang-tidy.patch
+        bash -c "if [ -f clang-tidy.patch ]; then exit 1; fi"
     - name: Upload clang-tidy.patch
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
+      if: ${{failure()}}
       with:
+        if-no-files-found: ignore
         name: clang-tidy.patch
         path: clang-tidy.patch
-    - name: Check if clang-tidy log is empty
-      run: bash -c "if [ -s clang-tidy.patch ]; then cat clang-tidy.patch; exit 1; fi"
 
-  build:
+  build_linux:
+    name: Linux
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -105,7 +109,7 @@ jobs:
     - name: Install boost (if not cached)
       if: steps.cache-boost.outputs.cache-hit != 'true'
       run: |
-        wget -q ${{env.BOOST_URL}}
+        wget -q ${{env.BOOST_URL}}.tar.bz2
         tar --bzip2 -xf ${{env.BOOST_VERSION}}.tar.bz2
     - name: Install valgrind
       if: ${{matrix.build_type == 'Debug'}}
@@ -120,11 +124,42 @@ jobs:
           export CXX=clang++
         fi
         mkdir build
-        cmake $CMAKE_COMMON_OPTIONS -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
+        cmake ${{env.CMAKE_COMMON_OPTIONS}} -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
     - name: Build tests
-      run: cmake --build build --config ${{matrix.build_type}} --parallel 8
+      run: cmake --build build --config ${{matrix.build_type}} --parallel ${{env.CORES}}
     - name: Run tests
       run: build/utility_test/UtilityTest
     - name: Run valgrind
       if: ${{matrix.build_type == 'Debug'}}
       run: valgrind build/utility_test/UtilityTest
+      
+  build_windows:
+    name: Windows
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        toolchain: [msvc]
+        build_type: [Debug, Release]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Load cached boost
+      id: cache-boost
+      uses: actions/cache@v2.1.5
+      with:
+        path: ${{env.BOOST_VERSION}}
+        key: ${{runner.os}}-boost
+    - name: Install boost (if not cached)
+      if: steps.cache-boost.outputs.cache-hit != 'true'
+      run: |
+        Invoke-WebRequest -Uri ${{env.BOOST_URL}}.7z -OutFile ${{env.BOOST_VERSION}}.7z
+        7z x ${{env.BOOST_VERSION}}.7z
+    - name: Configure cmake
+      run: |
+        mkdir build
+        cmake ${{env.CMAKE_COMMON_OPTIONS}} -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
+    - name: Build tests
+      run: cmake --build build --config ${{matrix.build_type}} --parallel ${{env.CORES}}
+    - name: Run tests
+      run: build/utility_test/${{matrix.build_type}}/UtilityTest.exe
+    
