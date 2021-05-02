@@ -9,7 +9,7 @@ on:
 env:
   BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2
   BOOST_VERSION: boost_1_76_0
-  CMAKE_COMMON: cmake -B build -DUTILITY_TEST=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBOOST_ROOT=${{github.workspace}}/boost_1_76_0
+  CMAKE_COMMON_OPTIONS: -B build -DUTILITY_TEST=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBOOST_ROOT=${{github.workspace}}/boost_1_76_0
 
 jobs:
   clang-format:
@@ -61,7 +61,7 @@ jobs:
       env:
         CC: clang
         CXX: clang++
-      run: $CMAKE_COMMON -DCMAKE_BUILD_TYPE=Debug
+      run: cmake $CMAKE_COMMON_OPTIONS -DCMAKE_BUILD_TYPE=Debug
     - name: Run clang-tidy
       run: git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -j8 -p1 -path build -export-fixes clang-tidy.patch
     - uses: actions/upload-artifact@v1
@@ -115,7 +115,7 @@ jobs:
           export CC=clang
           export CXX=clang++
         fi
-        $CMAKE_COMMON -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
+        cmake $CMAKE_COMMON_OPTIONS -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
     - name: Build tests
       run: cmake --build build --config ${{matrix.build_type}} --parallel 8
     - name: Run tests
