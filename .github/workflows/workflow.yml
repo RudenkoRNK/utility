@@ -9,7 +9,10 @@ on:
 env:
   BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0
   BOOST_VERSION: boost_1_76_0
-  CMAKE_COMMON_OPTIONS: -B build -DUTILITY_TEST=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBOOST_ROOT=${{github.workspace}}/boost_1_76_0
+  CMAKE_COMMON_OPTIONS: -B build -DUTILITY_TEST=ON -DBOOST_ROOT=${{github.workspace}}/boost_1_76_0
+  AAA: $BOOST_URL
+  BBB: ${{BOOST_URL}}
+  CCC: ${{env.BOOST_URL}}
   CORES: 2
 
 jobs:
@@ -24,6 +27,9 @@ jobs:
       run: sudo ln -s /usr/bin/clang-format-diff-11 /usr/bin/clang-format-diff
     - name: Run clang-format for the patch
       run: |
+        echo ${{env.AAA}}
+        echo ${{env.BBB}}
+        echo ${{env.CCC}}
         git diff -U0 --no-color HEAD^ | clang-format-diff -p1 > clang-format.patch
         bash -c "if [ -s clang-format.patch ]; then cat clang-format.patch; exit 1; fi"
     - name: Upload clang-format.patch
@@ -64,7 +70,7 @@ jobs:
         CXX: clang++
       run: |
         mkdir build
-        cmake ${{env.CMAKE_COMMON_OPTIONS}} -DCMAKE_BUILD_TYPE=Debug
+        cmake ${{env.CMAKE_COMMON_OPTIONS}} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug
     - name: Run clang-tidy
       run: |
         git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -j8 -p1 -path build -export-fixes clang-tidy.patch
