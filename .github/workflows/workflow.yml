@@ -91,8 +91,10 @@ jobs:
     - name: Install GCC
       if: ${{matrix.toolchain == 'gcc'}}
       run: |
-        sudo ln -s -f /usr/bin/gcc-11 /usr/bin/gcc
-        sudo ln -s -f /usr/bin/g++-11 /usr/bin/g++
+        #sudo ln -s -f /usr/bin/gcc-11 /usr/bin/gcc
+        #sudo ln -s -f /usr/bin/g++-11 /usr/bin/g++
+        update-alternatives --set gcc "/usr/bin/gcc-11"
+        update-alternatives --set g++ "/usr/bin/g++-11"
     - name: Install valgrind
       if: ${{matrix.build_type == 'Debug'}}
       run: sudo apt-get install valgrind
