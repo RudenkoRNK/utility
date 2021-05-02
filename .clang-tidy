@@ -5,5 +5,8 @@ Checks:          '*,
                   -fuchsia-default-arguments-calls,
                   -cppcoreguidelines-pro-type-vararg,
                   -hicpp-vararg,
+                  -google-readability-braces-around-statements,
+                  -hicpp-braces-around-statements,
+                  -readability-braces-around-statements,
                   '
 HeaderFilterRegex: 'evolution/utility/.*'

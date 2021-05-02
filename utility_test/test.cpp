@@ -346,10 +346,12 @@ BOOST_AUTO_TEST_CASE(exception_handler_test) {
   std::for_each(std::execution::par_unseq, i1.begin(), i1.end(),
                 h.Wrap([&](size_t) { throw std::runtime_error{""}; }));
 
-  std::generate(std::execution::par_unseq, i1.begin(), i1.end(), h.Wrap([]() {
-    throw std::runtime_error{""};
-    return 0;
-  }));
+  std::generate(std::execution::par_unseq, i1.begin(), i1.end(),
+                h.Wrap([true_cond = i1.size() > 0]() {
+                  if (true_cond)
+                    throw std::runtime_error{""};
+                  return 0;
+                }));
 
   while (h.NSavedExceptions()) {
     try {
