@@ -2,6 +2,7 @@
 
 #include "utility/type_traits.hpp"
 #include <algorithm>
+#include <atomic>
 #include <cassert>
 #include <chrono>
 #include <concepts>
@@ -9,7 +10,6 @@
 #include <numeric>
 #include <optional>
 #include <random>
-#include <atomic>
 #include <vector>
 
 namespace Utility {
@@ -84,8 +84,7 @@ std::vector<size_t> GetSortPermutation(Vector const &v) {
   return GetSortPermutation(v, std::less<>{});
 }
 
-template <typename Generator = std::mt19937>
-Generator &GetRandomGenerator() {
+template <typename Generator = std::mt19937> Generator &GetRandomGenerator() {
   auto static thread_local generator = Generator{std::random_device{}()};
   return generator;
 }
@@ -94,7 +93,7 @@ template <typename FG, typename... Args>
 std::chrono::nanoseconds _Benchmark(FG &&Func, size_t nRuns, Args &&...args) {
   static_assert(CallableTraits<FG>::nArguments == sizeof...(args));
   auto start = std::chrono::steady_clock::now();
-  for (auto i = 0; i != nRuns; ++i)
+  for (auto i = size_t{0}; i != nRuns; ++i)
     Func(std::forward<Args>(args)...);
   auto end = std::chrono::steady_clock::now();
   return (end - start) / nRuns;

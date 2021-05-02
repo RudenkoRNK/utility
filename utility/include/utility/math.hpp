@@ -76,8 +76,7 @@ constexpr auto LeastSquares(std::vector<NumberX> const &x,
                                      .SigmaSlope = SigmaSlope};
 }
 
-template <Numeric NumberY>
-auto LeastSquares(std::vector<NumberY> const &y) {
+template <Numeric NumberY> auto LeastSquares(std::vector<NumberY> const &y) {
   auto x = std::vector<double>(y.size());
   std::iota(x.begin(), x.end(), 0.0);
   return LeastSquares(x, y);

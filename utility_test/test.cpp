@@ -16,7 +16,7 @@
 using namespace Utility;
 
 int foo(int x) { return x; };
-void bar(int x){};
+void bar(int x) { std::cout << x << std::endl; };
 
 BOOST_AUTO_TEST_CASE(arg_traits_test) {
   auto lambda1 = [](std::string const &) { return 0; };
@@ -80,9 +80,10 @@ BOOST_AUTO_TEST_CASE(arg_traits_test_2) {
 
   BOOST_TEST(CallableTraits<
                  std::add_rvalue_reference_t<decltype(lambda1)>>::nArguments ==
-             1);
+             size_t{1});
   BOOST_TEST(
-      CallableTraits<std::remove_cvref_t<decltype(lambda1)>>::nArguments == 1);
+      CallableTraits<std::remove_cvref_t<decltype(lambda1)>>::nArguments ==
+      size_t{1});
 }
 
 BOOST_AUTO_TEST_CASE(arg_traits_test_3) {
@@ -201,16 +202,6 @@ template <> struct hash<std::pair<const int, double>> {
 };
 } // namespace std
 
-struct AAA {
-  int x;
-  int y;
-  AAA() = delete;
-  AAA(int x, int y) : x(x), y(y){};
-};
-static bool operator==(AAA const &lhs, AAA const &rhs) {
-  return lhs.x == rhs.x && lhs.y == rhs.y;
-}
-
 BOOST_AUTO_TEST_CASE(exception_guard_test) {
   struct ThrowingStruct {
     int val = 1;
@@ -242,15 +233,14 @@ BOOST_AUTO_TEST_CASE(benchmark_test) {
     AAA &operator=(AAA &&) = delete;
   };
   auto aaa = AAA(size_t{3});
-
   auto f1 = []() {};
-  auto f2 = [](int x) {};
-  auto f3 = [](int x, int y) {};
-  auto f4 = [](size_t x) {};
-  auto f5 = [](size_t x, size_t y) {};
-  auto f6 = [](AAA &&x, size_t y) {};
-  auto f7 = [](AAA &x, size_t y) {};
-  auto f8 = [](AAA const &x, size_t y) {};
+  auto f2 = [](int) {};
+  auto f3 = [](int, int) {};
+  auto f4 = [](size_t) {};
+  auto f5 = [](size_t, size_t) {};
+  auto f6 = [](AAA &&, size_t) {};
+  auto f7 = [](AAA &, size_t) {};
+  auto f8 = [](AAA const &, size_t) {};
   Benchmark(f1);
   Benchmark(f1, size_t{10});
   Benchmark(f2, 3);
@@ -354,7 +344,7 @@ BOOST_AUTO_TEST_CASE(exception_handler_test) {
   auto i1 = GetIndices(20);
 
   std::for_each(std::execution::par_unseq, i1.begin(), i1.end(),
-                h.Wrap([&](size_t i) { throw std::runtime_error{""}; }));
+                h.Wrap([&](size_t) { throw std::runtime_error{""}; }));
 
   std::generate(std::execution::par_unseq, i1.begin(), i1.end(), h.Wrap([]() {
     throw std::runtime_error{""};
@@ -374,31 +364,31 @@ BOOST_AUTO_TEST_CASE(exception_handler_test) {
   auto i2 = GetIndices(50);
 
   std::for_each(std::execution::par_unseq, i1.begin(), i1.end(),
-                h1.Wrap([&](size_t i) { throw std::exception{}; }));
+                h1.Wrap([&](size_t) { throw std::exception{}; }));
   std::for_each(std::execution::par_unseq, i2.begin(), i2.end(),
-                h2.Wrap([&](size_t i) { throw std::exception{}; }));
+                h2.Wrap([&](size_t) { throw std::exception{}; }));
   h1.swap(h2);
   static_assert(noexcept(swap(h1, h2)));
-  BOOST_TEST(h1.NSavedExceptions() == 20);
-  BOOST_TEST(h1.NCapturedExceptions() == 50);
-  BOOST_TEST(h2.NSavedExceptions() == 10);
-  BOOST_TEST(h2.NCapturedExceptions() == 20);
+  BOOST_TEST(h1.NSavedExceptions() == size_t{20});
+  BOOST_TEST(h1.NCapturedExceptions() == size_t{50});
+  BOOST_TEST(h2.NSavedExceptions() == size_t{10});
+  BOOST_TEST(h2.NCapturedExceptions() == size_t{20});
   h1 = std::move(h2);
-  BOOST_TEST(h2.NSavedExceptions() == 20);
-  BOOST_TEST(h2.NCapturedExceptions() == 50);
-  BOOST_TEST(h1.NSavedExceptions() == 10);
-  BOOST_TEST(h1.NCapturedExceptions() == 20);
+  BOOST_TEST(h2.NSavedExceptions() == size_t{20});
+  BOOST_TEST(h2.NCapturedExceptions() == size_t{50});
+  BOOST_TEST(h1.NSavedExceptions() == size_t{10});
+  BOOST_TEST(h1.NCapturedExceptions() == size_t{20});
 
   auto h3 = ExceptionSaver{0};
   std::for_each(std::execution::par_unseq, i1.begin(), i1.end(),
-                h3.Wrap([&](size_t i) { throw std::exception{}; }));
+                h3.Wrap([&](size_t) { throw std::exception{}; }));
   h3.Rethrow();
   auto h4 = std::move(h1);
   h1.Rethrow();
   std::for_each(std::execution::par_unseq, i1.begin(), i1.end(),
-                h1.Wrap([&](size_t i) { throw std::exception{}; }));
+                h1.Wrap([&](size_t) { throw std::exception{}; }));
   h1.Rethrow();
-  BOOST_TEST(h1.NCapturedExceptions() == 20);
+  BOOST_TEST(h1.NCapturedExceptions() == size_t{20});
   h2.Drop();
   h4.Drop();
 }
@@ -413,7 +403,7 @@ BOOST_AUTO_TEST_CASE(raii_test) {
     Act(size_t &copyCnt, bool &act) : copyCnt(copyCnt), act(act) {}
     Act(Act const &a) : copyCnt(a.copyCnt), act(a.act) { ++copyCnt; }
     Act(Act &&a) : copyCnt(a.copyCnt), act(a.act) {}
-    Act &operator=(Act const &a) {
+    Act &operator=(Act const &) {
       ++copyCnt;
       return *this;
     }
@@ -431,7 +421,7 @@ BOOST_AUTO_TEST_CASE(raii_test) {
   }
   BOOST_TEST(noex == true);
   BOOST_TEST(ex == false);
-  BOOST_TEST(copyCnt == 0);
+  BOOST_TEST(copyCnt == size_t{0});
 
   {
     copyCnt = size_t{0};
@@ -441,7 +431,7 @@ BOOST_AUTO_TEST_CASE(raii_test) {
   }
   BOOST_TEST(noex == true);
   BOOST_TEST(ex == false);
-  BOOST_TEST(copyCnt == 0);
+  BOOST_TEST(copyCnt == size_t{0});
 
   {
     copyCnt = size_t{0};
@@ -451,7 +441,7 @@ BOOST_AUTO_TEST_CASE(raii_test) {
   }
   BOOST_TEST(noex == true);
   BOOST_TEST(ex == false);
-  BOOST_TEST(copyCnt == 0);
+  BOOST_TEST(copyCnt == size_t{0});
 
   try {
     copyCnt = size_t{0};
@@ -463,7 +453,7 @@ BOOST_AUTO_TEST_CASE(raii_test) {
   }
   BOOST_TEST(noex == false);
   BOOST_TEST(ex == true);
-  BOOST_TEST(copyCnt == 0);
+  BOOST_TEST(copyCnt == size_t{0});
 
   try {
     copyCnt = size_t{0};
@@ -475,7 +465,7 @@ BOOST_AUTO_TEST_CASE(raii_test) {
   }
   BOOST_TEST(noex == false);
   BOOST_TEST(ex == true);
-  BOOST_TEST(copyCnt == 0);
+  BOOST_TEST(copyCnt == size_t{0});
 
   struct Restore {
     int *restoreTo;
@@ -538,9 +528,8 @@ BOOST_AUTO_TEST_CASE(raii_test) {
 }
 
 BOOST_AUTO_TEST_CASE(type_traits_forward_test) {
-  auto F = [](std::string a, std::string &b, std::string &&c,
-              std::string const &d, std::string const e,
-              std::string const &&f) {};
+  auto F = [](std::string, std::string &, std::string &&, std::string const &,
+              std::string const, std::string const &&) {};
 
   auto a = std::string("a");
   auto b = std::string("b");
@@ -574,11 +563,10 @@ BOOST_AUTO_TEST_CASE(sort_test) {
 
 BOOST_AUTO_TEST_CASE(random_test) {
   auto N = 1000;
-  auto timen = std::chrono::nanoseconds{0};
   auto d = 0.0;
   auto rd = std::random_device{};
 
-  auto rdtime = Benchmark([&]() { d += rd(); }, N);
+  Benchmark([&]() { d += rd(); }, N);
   auto gentime = Benchmark(
       [&]() {
         auto gen = std::mt19937{};
@@ -759,7 +747,7 @@ BOOST_AUTO_TEST_CASE(raii_bench_test) {
   auto x = static_cast<double>(rt.count());
   auto y = static_cast<double>(rt2.count());
   auto overhead = (x - y) / y;
-  BOOST_TEST((rt2.count() == 0 || overhead < 100));
+  BOOST_TEST((rt2.count() == size_t{0} || overhead < 100));
 
   if (s()) {
     std::cout << "Hash:   " << s() << ol.value().hash << f() << std::endl;
@@ -823,7 +811,7 @@ BOOST_AUTO_TEST_CASE(saverestore_bench_test) {
   auto x = static_cast<double>(srt.count());
   auto y = static_cast<double>(srt2.count());
   auto overhead = (x - y) / y;
-  BOOST_TEST((srt2.count() == 0 || overhead < 1));
+  BOOST_TEST((srt2.count() == size_t{0} || overhead < 1));
 
   if (hash == 0) {
     std::cout << "Hash:   " << hash << std::endl;
