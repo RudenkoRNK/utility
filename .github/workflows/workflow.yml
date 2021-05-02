@@ -51,19 +51,20 @@ jobs:
         wget -q ${{env.BOOST_URL}}
         tar --bzip2 -xf ${{env.BOOST_VERSION}}.tar.bz2
     - name: Install clang-tidy
-      run: sudo apt-get install clang-tidy-11
-    - name: Setup
       run: |
-        mkdir build
-        touch clang-tidy.patch
+        sudo apt-get install clang-tidy-11
         sudo ln -s /usr/bin/clang-tidy-11 /usr/bin/clang-tidy
     - name: Configure cmake
       env:
         CC: clang
         CXX: clang++
-      run: cmake $CMAKE_COMMON_OPTIONS -DCMAKE_BUILD_TYPE=Debug
+      run: |
+        mkdir build
+        cmake $CMAKE_COMMON_OPTIONS -DCMAKE_BUILD_TYPE=Debug
     - name: Run clang-tidy
-      run: git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -j8 -p1 -path build -export-fixes clang-tidy.patch
+      run: |
+        touch clang-tidy.patch
+        git diff -U0 --no-color HEAD^ | clang-tidy-diff-11.py -j8 -p1 -path build -export-fixes clang-tidy.patch
     - uses: actions/upload-artifact@v1
       with:
         name: clang-tidy.patch
@@ -83,8 +84,8 @@ jobs:
     - name: Update system
       run: sudo apt-get update
     - name: Install LLVM
-      run: |
       if: ${{matrix.toolchain == 'llvm'}}
+      run: |
         sudo ln -s -f /usr/bin/clang-11 /usr/bin/clang
         sudo ln -s -f /usr/bin/clang++-11 /usr/bin/clang++
     - name: Install GCC
@@ -93,9 +94,6 @@ jobs:
         sudo apt-get install gcc-11 g++-11
         sudo ln -s -f /usr/bin/gcc-11 /usr/bin/gcc
         sudo ln -s -f /usr/bin/g++-11 /usr/bin/g++
-    - name: Install valgrind
-      if: ${{matrix.build_type == 'Debug'}}
-      run: sudo apt-get install valgrind
     - name: Load cached boost
       id: cache-boost
       uses: actions/cache@v2.1.5
@@ -107,6 +105,9 @@ jobs:
       run: |
         wget -q ${{env.BOOST_URL}}
         tar --bzip2 -xf ${{env.BOOST_VERSION}}.tar.bz2
+    - name: Install valgrind
+      if: ${{matrix.build_type == 'Debug'}}
+      run: sudo apt-get install valgrind
     - name: Configure cmake
       run: |
         if [ "${{matrix.toolchain}}" == 'gcc' ]; then
