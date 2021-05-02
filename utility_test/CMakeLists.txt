@@ -13,3 +13,8 @@ file(GLOB UtilityTestSources
   ${CMAKE_CURRENT_SOURCE_DIR}/../utility/include/utility/*.[hcm]pp
 )
 target_sources(UtilityTest PRIVATE ${UtilityTestSources})
+
+target_compile_options(UtilityTest PRIVATE
+  $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+  $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic -Werror>
+)
