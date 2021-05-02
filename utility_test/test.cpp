@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE(exception_handler_test) {
                 h.Wrap([&](size_t) { throw std::runtime_error{""}; }));
 
   std::generate(std::execution::par_unseq, i1.begin(), i1.end(),
-                h.Wrap([true_cond = i1.size() > 0]() {
+                h.Wrap([true_cond = !i1.empty()]() {
                   if (true_cond)
                     throw std::runtime_error{""};
                   return 0;
