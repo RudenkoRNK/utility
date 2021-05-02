@@ -124,3 +124,6 @@ jobs:
       run: cmake --build build --config ${{matrix.build_type}} --parallel 8
     - name: Run tests
       run: build/utility_test/UtilityTest
+    - name: Run valgrind
+      if: ${{matrix.build_type == 'Debug'}}
+      run: valgrind build/utility_test/UtilityTest
