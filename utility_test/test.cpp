@@ -759,7 +759,7 @@ BOOST_AUTO_TEST_CASE(raii_bench_test) {
   auto x = static_cast<double>(rt.count());
   auto y = static_cast<double>(rt2.count());
   auto overhead = (x - y) / y;
-  BOOST_TEST(overhead < 100);
+  BOOST_TEST((rt2.count() == 0 || overhead < 100));
 
   if (s()) {
     std::cout << "Hash:   " << s() << ol.value().hash << f() << std::endl;
@@ -823,7 +823,7 @@ BOOST_AUTO_TEST_CASE(saverestore_bench_test) {
   auto x = static_cast<double>(srt.count());
   auto y = static_cast<double>(srt2.count());
   auto overhead = (x - y) / y;
-  BOOST_TEST(overhead < 1);
+  BOOST_TEST((srt2.count() == 0 || overhead < 1));
 
   if (hash == 0) {
     std::cout << "Hash:   " << hash << std::endl;
