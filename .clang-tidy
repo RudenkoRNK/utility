@@ -1,5 +1,9 @@
 ---
 Checks:          '*,
                   -llvm-header-guard,
+                  -llvmlibc-callee-namespace,
+                  -fuchsia-default-arguments-calls,
+                  -cppcoreguidelines-pro-type-vararg,
+                  -hicpp-vararg,
                   '
 HeaderFilterRegex: 'evolution/utility/.*'
