@@ -10,8 +10,6 @@ env:
   BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0
   BOOST_VERSION: boost_1_76_0
   CMAKE_COMMON_OPTIONS: -B build -DUTILITY_TEST=ON -DBOOST_ROOT=${{github.workspace}}/boost_1_76_0
-  AAA: $BOOST_URL
-  CCC: ${{env.BOOST_URL}}
   CORES: 2
 
 jobs:
@@ -26,8 +24,6 @@ jobs:
       run: sudo ln -s /usr/bin/clang-format-diff-11 /usr/bin/clang-format-diff
     - name: Run clang-format for the patch
       run: |
-        echo ${{env.AAA}}
-        echo ${{env.CCC}}
         git diff -U0 --no-color HEAD^ | clang-format-diff -p1 > clang-format.patch
         bash -c "if [ -s clang-format.patch ]; then cat clang-format.patch; exit 1; fi"
     - name: Upload clang-format.patch
