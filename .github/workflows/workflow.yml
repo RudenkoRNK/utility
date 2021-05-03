@@ -24,7 +24,7 @@ jobs:
       run: sudo ln -s /usr/bin/clang-format-diff-11 /usr/bin/clang-format-diff
     - name: Run clang-format for the patch
       run: |
-        echo GITHUB_EVENT_NAME ${{GITHUB_EVENT_NAME}}
+        echo GITHUB_EVENT_NAME ${{env.GITHUB_EVENT_NAME}}
         git diff -U0 --no-color HEAD^ | clang-format-diff -p1 > clang-format.patch
         bash -c "if [ -s clang-format.patch ]; then cat clang-format.patch; exit 1; fi"
     - name: Upload clang-format.patch
