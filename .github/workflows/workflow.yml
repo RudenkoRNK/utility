@@ -15,6 +15,7 @@ env:
 jobs:
   clang-format:
     runs-on: ubuntu-latest
+    if: ${{github.event_name == 'pull_request'}}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -24,11 +25,6 @@ jobs:
       run: sudo ln -s /usr/bin/clang-format-diff-11 /usr/bin/clang-format-diff
     - name: Run clang-format for the patch
       run: |
-        echo github.workspace && echo ${{github.workspace}}
-        echo github.sha && echo ${{github.sha}}
-        echo github.event && echo ${{github.event}}
-        echo github.event.name && echo ${{github.event.name}}
-        echo github.event_name && echo ${{github.event_name}}
         git diff -U0 --no-color HEAD^ | clang-format-diff -p1 > clang-format.patch
         bash -c "if [ -s clang-format.patch ]; then cat clang-format.patch; exit 1; fi"
     - name: Upload clang-format.patch
@@ -41,6 +37,7 @@ jobs:
 
   clang-tidy:
     runs-on: ubuntu-latest
+    if: ${{github.event_name == 'pull_request'}}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
